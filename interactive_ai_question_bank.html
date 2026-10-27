@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بنك أسئلة الذكاء الاصطناعي والإحصاء التفاعلي | AI & Statistics Question Bank</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        neon: {
+                            cyan: '#00f3ff',
+                            purple: '#bc13fe',
+                            emerald: '#10b981',
+                            pink: '#ff007f',
+                            dark: '#090d16'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 15px rgba(0, 243, 255, 0.4), 0 0 30px rgba(0, 243, 255, 0.2)',
+                        'neon-purple': '0 0 15px rgba(188, 19, 254, 0.4), 0 0 30px rgba(188, 19, 254, 0.2)',
+                        'neon-emerald': '0 0 15px rgba(16, 185, 129, 0.4)',
+                        'neon-pink': '0 0 15px rgba(255, 0, 127, 0.4)'
+                    },
+                    fontFamily: {
+                        sans: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+                        code: ['Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #060911;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(188, 19, 254, 0.08) 0%, transparent 40%);
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f3ff;
+        }
+
+        /* Glassmorphism Styles */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Subtle Scanline Effect */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.12) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 50;
+            opacity: 0.6;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.3; }
+        }
+
+        .glow-effect {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased relative pb-12">
+    <!-- Cyber Background Grid Lines Overlay -->
+    <div class="scanlines"></div>
+
+    <div class="max-w-5xl mx-auto px-4 py-6 relative z-10">
+        
+        <!-- Navbar / Header -->
+        <header class="glass-panel rounded-2xl p-6 mb-8 border-b border-cyan-500/30 shadow-neon-cyan">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-2xl text-white shadow-neon-purple">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan via-white to-neon-purple tracking-wide">
+                            بنك أسئلة الذكاء الاصطناعي والإحصاء
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            AI & Statistical Analysis Interactive Quiz App
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="text-xs px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-cyan-300 font-mono">
+                        <i class="fa-solid fa-graduation-cap ml-1"></i> Master 2 Level
+                    </span>
+                    <button id="resetQuizBtn" class="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 transition hover:border-cyan-400 flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> إعادة البدء
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Interactive Quiz Container -->
+        <main id="quizApp">
+            <!-- Filter & Progress Dashboard -->
+            <div class="glass-panel rounded-2xl p-6 mb-8 border border-slate-800">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <!-- Chapter Selector Filter -->
+                    <div class="w-full md:w-auto">
+                        <label class="block text-xs text-slate-400 mb-2 font-semibold">تصفية حسب الفصل (Chapter Filter):</label>
+                        <div class="flex flex-wrap gap-2" id="chapterFilterContainer">
+                            <button data-chapter="all" class="filter-btn active px-3.5 py-1.5 text-xs font-medium rounded-lg transition bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-neon-cyan">
+                                الكل (All)
+                            </button>
+                            <button data-chapter="1" class="filter-btn px-3.5 py-1.5 text-xs font-medium rounded-lg transition bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500">
+                                Ch 1: Basic Concepts
+                            </button>
+                            <button data-chapter="2" class="filter-btn px-3.5 py-1.5 text-xs font-medium rounded-lg transition bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500">
+                                Ch 2: AI Methods
+                            </button>
+                            <button data-chapter="3" class="filter-btn px-3.5 py-1.5 text-xs font-medium rounded-lg transition bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500">
+                                Ch 3: Statistics & Economy
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Stats Dashboard -->
+                    <div class="flex items-center gap-4 w-full md:w-auto justify-end">
+                        <div class="text-center px-4 py-2 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <div class="text-xs text-slate-400">الإجابات الصحيحة</div>
+                            <div id="scoreCounter" class="text-lg font-bold text-emerald-400 font-mono">0</div>
+                        </div>
+                        <div class="text-center px-4 py-2 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <div class="text-xs text-slate-400">المتبقي</div>
+                            <div id="remainingCounter" class="text-lg font-bold text-cyan-400 font-mono">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Animated Progress Bar -->
+                <div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-2">
+                        <span>نسبة الإنجاز (Progress)</span>
+                        <span id="progressPercent" class="font-mono text-cyan-400 font-bold">0%</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                        <div id="progressBar" class="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-emerald-400 rounded-full transition-all duration-500 w-0 shadow-neon-cyan"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Card View Screen -->
+            <div id="questionContainer" class="space-y-6">
+                <!-- Dynamically Inserted Questions Will Render Here -->
+            </div>
+
+            <!-- Quiz Completion Summary Modal View (Hidden Initially) -->
+            <div id="completionSummary" class="hidden glass-panel rounded-2xl p-8 border border-purple-500/40 shadow-neon-purple text-center">
+                <div class="w-20 h-20 mx-auto rounded-full bg-purple-600/20 border-2 border-neon-purple flex items-center justify-center text-4xl text-neon-purple mb-4 shadow-neon-purple">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white mb-2">أحسنت! لقد أكملت بنك الأسئلة</h2>
+                <p class="text-slate-300 text-sm mb-6">إليك ملخص نتيجتك النهائية والتقييم الشامل:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-xl mx-auto mb-8">
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <div class="text-xs text-slate-400 mb-1">النتيجة الكلية</div>
+                        <div id="finalScoreText" class="text-2xl font-black text-cyan-400 font-mono">0/0</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <div class="text-xs text-slate-400 mb-1">النسبة المئوية</div>
+                        <div id="finalPercentageText" class="text-2xl font-black text-emerald-400 font-mono">0%</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <div class="text-xs text-slate-400 mb-1">التقييم</div>
+                        <div id="finalGradeText" class="text-base font-bold text-purple-400 mt-1">ممتاز</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button id="restartQuizBtn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 font-bold text-white shadow-neon-cyan hover:opacity-90 transition">
+                        <i class="fa-solid fa-rotate-right ml-2"></i> إعادة الاختبار من جديد
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Quiz Questions Data Base (Mapped directly from Master 2 Curriculum)
+        const quizQuestions = [
+            // Chapter 1: Basic Concepts
+            {
+                id: 1,
+                chapter: 1,
+                chapterTitle: "Chapter 1: Basic Concepts",
+                type: "mcq",
+                question: "Which field of AI uses multilayer artificial neural networks to automatically discover complex representations from huge datasets?",
+                options: [
+                    "A) Expert Systems",
+                    "B) Deep Learning (DL)",
+                    "C) Descriptive Statistics",
+                    "D) Genetic Algorithms"
+                ],
+                correctAnswer: 1, // Index 1 -> B
+                explanations: {
+                    correct: "إجابة صحيحة! التعلم العميق (Deep Learning) يعتمد أساساً على الشبكات العصبية متعددة الطبقات (Multilayer Neural Networks) لاستخراج العلاقات معقدة التركيب من البيانات الضخمة دون تدخل بشري مباشر.",
+                    incorrect: "إجابة خاطئة. الإجابة الصحيحة هي (B - Deep Learning). بينما النظم الخبيرة تعتمد على القواعد، والجينات الوراثية على التحسين، والإحصاء على الوصف الرياضي."
+                }
+            },
+            {
+                id: 2,
+                chapter: 1,
+                chapterTitle: "Chapter 1: Basic Concepts",
+                type: "mcq",
+                question: "What is the primary paradigm shift between Classical Programming and Artificial Intelligence?",
+                options: [
+                    "A) Classical programming uses AI models to extract rules.",
+                    "B) AI inputs data and answers to deduce automatically the underlying rules or function.",
+                    "C) Classical programming requires no algorithms or input data.",
+                    "D) Artificial Intelligence relies only on hardcoded static rules."
+                ],
+                correctAnswer: 1,
+                explanations: {
+                    correct: "إجابة صحيحة! المنهج الكلاسيكي يحتاج مدخلات وقواعد مدخلة يدوياً للحصول على نتائج، بينما منهج الذكاء الاصطناعي يستقبل البيانات والنتائج لاستنتاج الدالة أو القاعدة تلقائياً.",
+                    incorrect: "إجابة خاطئة. الإجابة الصحيحة هي (B). المنهج البرمجي التقليدي يستلزم كتابة القواعد يدوياً، بينما الذكاء الاصطناعي يستنتج الدالة والقواعد بنفسه من واقع البيانات."
+                }
+            },
+            {
+                id: 3,
+                chapter: 1,
+                chapterTitle: "Chapter 1: Basic Concepts",
+                type: "tf",
+                question: "Machine Learning (ML) requires explicit human programming for every single decision rule and specific task.",
+                options: ["True", "False"],
+                correctAnswer: 1, // Index 1 -> False
+                explanations: {
+                    correct: "إجابة صحيحة! العبارة خاطئة (False) لأن التعلم الآلي يهدف لتمكين الآلة من التعلم وتطوير ذاتها من البيانات والخبرات السابقة دون الحاجة لبرمجتها بشكل صريح لكل تفصيلة.",
+                    incorrect: "إجابة خاطئة. العبارة خاطئة (False) وليست صحيحة. جوهر تعلم الآلة هو عدم الحاجة إلى كتابة أو برمجة كل شفرة وقاعدة قرار يدوياً."
+                }
+            },
+
+            // Chapter 2: AI Methods
+            {
+                id: 4,
+                chapter: 2,
+                chapterTitle: "Chapter 2: AI Methods",
+                type: "mcq",
+                question: "In Artificial Neural Networks (ANN), which mathematical algorithm is used to back-propagate errors and fine-tune synaptic weights?",
+                options: [
+                    "A) Backpropagation Algorithm",
+                    "B) Pearson Correlation Coefficient",
+                    "C) Random Selection Optimization",
+                    "D) K-Means Clustering"
+                ],
+                correctAnswer: 0,
+                explanations: {
+                    correct: "إجابة صحيحة! خوارزمية التغذية الراجعة الخلفية (Backpropagation) تعمل على حساب أخطاء المخرجات وتغذيتها عكسياً لتعديل الأوزان (Weights) والانحيازات وتقليل نسبة الخطأ.",
+                    incorrect: "إجابة خاطئة. الإجابة الصحيحة هي (A - Backpropagation Algorithm). هو التكنيك الرياضي الأساسي لتدريب الشبكات العصبية وتعديل أوزانها بناءً على نسبة الخطأ."
+                }
+            },
+            {
+                id: 5,
+                chapter: 2,
+                chapterTitle: "Chapter 2: AI Methods",
+                type: "mcq",
+                question: "Genetic Algorithms (GA) solve complex optimization problems using operations inspired by biological evolution such as:",
+                options: [
+                    "A) Input, Hidden, and Output layers processing",
+                    "B) Selection, Crossover, and Mutation",
+                    "C) Mean, Variance, and Standard Deviation",
+                    "D) SQL Queries and Relational Mapping"
+                ],
+                correctAnswer: 1,
+                explanations: {
+                    correct: "إجابة صحيحة! الخوارزميات الجينية تحاكي مبادئ التطور الطبيعي للجينات وتعتمد على الانتقاء (Selection)، التزاوج (Crossover)، والطفرات الجينية (Mutation) لإيجاد الحلول المثلى.",
+                    incorrect: "إجابة خاطئة. الإجابة الصحيحة هي (B). الخوارزميات الجينية تستوحى مراحلها الثلاث الأساسية (Selection, Crossover, Mutation) للوصول لأفضل حل."
+                }
+            },
+            {
+                id: 6,
+                chapter: 2,
+                chapterTitle: "Chapter 2: AI Methods",
+                type: "mcq",
+                question: "An Expert System (ES) mimics human expert decision-making and is composed mainly of:",
+                options: [
+                    "A) Input Layer and Hidden Layers",
+                    "B) Knowledge Base and Inference Engine",
+                    "C) Pearson Index and Spearman Rank",
+                    "D) High-Frequency Trading Algorithms"
+                ],
+                correctAnswer: 1,
+                explanations: {
+                    correct: "إجابة صحيحة! النظام الخبير يرتكز بصفة رئيسية على عنصرين: قاعدة المعرفة (Knowledge Base) ومحرك الاستدلال (Inference Engine) لاستنباط القرارات من معرفة الخبراء البشر.",
+                    incorrect: "إجابة خاطئة. الإجابة الصحيحة هي (B - Knowledge Base & Inference Engine). هما الركنان الأساسيان لتشغيل ومحاكاة النظم الخبيرة."
+                }
+            },
+            {
+                id: 7,
+                chapter: 2,
+                chapterTitle: "Chapter 2: AI Methods",
+                type: "tf",
+                question: "In Artificial Neural Networks (ANN), the hidden layers directly receive raw data input from the end-user.",
+                options: ["True", "False"],
+                correctAnswer: 1, // False
+                explanations: {
+                    correct: "إجابة صحيحة! العبارة خاطئة (False) لأن طبقة الإدخال (Input Layer) هي المسؤولة عن استقبال البيانات الخام مباشرة، بينما الطبقات المخفية (Hidden Layers) تقوم بمعالجة الرسوم والأنماط الداخلية.",
+                    incorrect: "إجابة خاطئة. العبارة خاطئة (False). طبقة الإدخال (Input Layer) هي التي تتعامل مع البيانات الخام مباشرة، وليست الطبقات المخفية."
+                }
+            },
+
+            // Chapter 3: AI in Statistical & Economic Analysis
+            {
+                id: 8,
+                chapter: 3,
+                chapterTitle: "Chapter 3: AI in Statistics & Economy",
+                type: "mcq",
+                question: "Which correlation coefficient is specifically designed for quantitative continuous data to evaluate linear relationships?",
+                options: [
+                    "A) Spearman Rank Correlation Coefficient",
+                    "B) Pearson Correlation Coefficient",
+                    "C) Coefficient of Determination (R²)",
+                    "D) Interquartile Range (IQR)"
+                ],
+                correctAnswer: 1,
+                explanations: {
+                    correct: "إجابة صحيحة! معامل ارتباط بيرسون (Pearson Correlation) يُستخدم لقياس قوة واتجاه العلاقة الخطية بين المتغيرات الكمية المستمرة.",
+                    incorrect: "إجابة خاطئة. الإجابة الصحيحة هي (B - Pearson Correlation). بينما سبيرمان مخصص للرتب والبيانات الترتيبية، وR² هو معامل التحديد."
+                }
+            },
+            {
+                id: 9,
+                chapter: 3,
+                chapterTitle: "Chapter 3: AI in Statistics & Economy",
+                type: "mcq",
+                question: "To evaluate the proportion of variance in the dependent variable explained by a statistical or AI model, we measure:",
+                options: [
+                    "A) Standard Deviation (σ)",
+                    "B) Coefficient of Determination (R²)",
+                    "C) Arithmetic Mean (μ)",
+                    "D) Mode"
+                ],
+                correctAnswer: 1,
+                explanations: {
+                    correct: "إجابة صحيحة! معامل التحديد (R²) يقيس النسبة المئوية للتغير في المتغير التابع التي يفسرها النموذج الإحصائي أو نموذج الذكاء الاصطناعي.",
+                    incorrect: "إجابة خاطئة. الإجابة الصحيحة هي (B - Coefficient of Determination R²). فهو المقياس الذي يحدد مدى كفاءة النموذج في تفسير التباين."
+                }
+            },
+            {
+                id: 10,
+                chapter: 3,
+                chapterTitle: "Chapter 3: AI in Statistics & Economy",
+                type: "mcq",
+                question: "The S&P 500 index measures the market performance of 500 leading companies listed in the US based on:",
+                options: [
+                    "A) Equal share prices without weighting",
+                    "B) Free-float Market Capitalization weighting",
+                    "C) The total number of employees in each firm",
+                    "D) Fixed annual revenue taxes"
+                ],
+                correctAnswer: 1,
+                explanations: {
+                    correct: "إجابة صحيحة! مؤشر سانبي 500 (S&P 500) يعتمد في حسابه على القيمة السوقية الحرة (Free-float Market Capitalization) للشركات الـ 500 الكبرى.",
+                    incorrect: "إجابة خاطئة. الإجابة الصحيحة هي (B). حساب المؤشر المالي S&P 500 يعتمد بالكامل على القيمة السوقية الحرة لأسهم الشركات."
+                }
+            },
+            {
+                id: 11,
+                chapter: 3,
+                chapterTitle: "Chapter 3: AI in Statistics & Economy",
+                type: "mcq",
+                question: "In Large Language Models (LLMs), Reinforcement Learning from Human Feedback (RLHF) is primarily applied during training to:",
+                options: [
+                    "A) Calculate the interquartile range of text",
+                    "B) Align model responses with human values and preferences",
+                    "C) Compress neural network weights to zero",
+                    "D) Replace standard backpropagation entirely"
+                ],
+                correctAnswer: 1,
+                explanations: {
+                    correct: "إجابة صحيحة! التعلم التعزيزي القائم على التغذية الراجعة البشرية (RLHF) يهدف لضبط ومحاذاة إجابات الموديل لتصبح مفيدة، آمنة ومطابقة للتفضيلات البشرية.",
+                    incorrect: "إجابة خاطئة. الإجابة الصحيحة هي (B). تقنية RLHF تُستخدم لمحاذاة وتوجيه نواتج النماذج اللغوية الضخمة لتتناسب مع التفضيلات والقيم البشرية."
+                }
+            },
+            {
+                id: 12,
+                chapter: 3,
+                chapterTitle: "Chapter 3: AI in Statistics & Economy",
+                type: "tf",
+                question: "The Interquartile Range (IQR) is calculated as the difference between the first quartile (Q1) and the third quartile (Q3), i.e., IQR = Q3 - Q1.",
+                options: ["True", "False"],
+                correctAnswer: 0, // True
+                explanations: {
+                    correct: "إجابة صحيحة! العبارة صحيحة (True). المدى الربيعي (IQR) يساوي بالفعل حاصل طرح الربيع الأدنى (Q1) من الربيع الأعلى (Q3) لقياس التشتت.",
+                    incorrect: "إجابة خاطئة. العبارة صحيحة (True). معادلة المدى الربيعي الإحصائية هي IQR = Q3 - Q1 بالفعل."
+                }
+            },
+            {
+                id: 13,
+                chapter: 3,
+                chapterTitle: "Chapter 3: AI in Statistics & Economy",
+                type: "tf",
+                question: "In Large Language Models, the term 'Hallucination' refers to generating accurate, verified statistical data.",
+                options: ["True", "False"],
+                correctAnswer: 1, // False
+                explanations: {
+                    correct: "إجابة صحيحة! العبارة خاطئة (False). مصطلح الهلوسة (Hallucination) يعني توليد النموذج لمعلومات خاطئة أو غير حقيقية بثقة عالية.",
+                    incorrect: "إجابة خاطئة. العبارة خاطئة (False). الهلوسة في نماذج الذكاء الاصطناعي تشير إلى اختلاق وتوليد إجابات ومعلومات غير صحيحة وليس بيانات موثوقة."
+                }
+            }
+        ];
+
+        // App State
+        let currentFilter = 'all';
+        let userAnswers = {}; // Map of questionId -> selectedOptionIndex
+
+        // DOM Elements
+        const questionContainer = document.getElementById('questionContainer');
+        const chapterFilterBtns = document.querySelectorAll('.filter-btn');
+        const scoreCounterEl = document.getElementById('scoreCounter');
+        const remainingCounterEl = document.getElementById('remainingCounter');
+        const progressBarEl = document.getElementById('progressBar');
+        const progressPercentEl = document.getElementById('progressPercent');
+        const completionSummaryEl = document.getElementById('completionSummary');
+        const resetQuizBtn = document.getElementById('resetQuizBtn');
+        const restartQuizBtn = document.getElementById('restartQuizBtn');
+
+        // Filter Logic
+        chapterFilterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                chapterFilterBtns.forEach(b => {
+                    b.classList.remove('active', 'bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/50', 'shadow-neon-cyan');
+                    b.classList.add('bg-slate-800', 'text-slate-400', 'border-slate-700');
+                });
+                btn.classList.add('active', 'bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/50', 'shadow-neon-cyan');
+                btn.classList.remove('bg-slate-800', 'text-slate-400', 'border-slate-700');
+
+                currentFilter = btn.getAttribute('data-chapter');
+                renderQuiz();
+            });
+        });
+
+        // Initialize & Render Quiz
+        function renderQuiz() {
+            const filteredQuestions = getFilteredQuestions();
+            questionContainer.innerHTML = '';
+
+            if (filteredQuestions.length === 0) {
+                questionContainer.innerHTML = `<div class="text-center py-12 text-slate-500">لا توجد أسئلة متوفرة لهذا الفصل حالياً.</div>`;
+                return;
+            }
+
+            filteredQuestions.forEach((q, index) => {
+                const isAnswered = userAnswers.hasOwnProperty(q.id);
+                const selectedOption = userAnswers[q.id];
+                const isCorrect = isAnswered && selectedOption === q.correctAnswer;
+
+                const qCard = document.createElement('div');
+                qCard.className = `glass-panel rounded-2xl p-6 border transition duration-300 ${
+                    isAnswered 
+                        ? (isCorrect ? 'border-emerald-500/40 shadow-neon-emerald' : 'border-pink-500/40 shadow-neon-pink')
+                        : 'border-slate-800 hover:border-slate-700'
+                }`;
+
+                // Options HTML
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    let optionStyle = "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-cyan-500/40";
+                    let badgeHTML = '';
+
+                    if (isAnswered) {
+                        if (optIdx === q.correctAnswer) {
+                            optionStyle = "bg-emerald-950/60 border-emerald-500 text-emerald-200 shadow-neon-emerald font-semibold";
+                            badgeHTML = `<span class="mr-auto text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"><i class="fa-solid fa-check ml-1"></i> الإجابة الصحيحة</span>`;
+                        } else if (optIdx === selectedOption) {
+                            optionStyle = "bg-pink-950/60 border-pink-500 text-pink-200 shadow-neon-pink";
+                            badgeHTML = `<span class="mr-auto text-xs px-2 py-0.5 rounded bg-pink-500/20 text-pink-400 border border-pink-500/40"><i class="fa-solid fa-xmark ml-1"></i> اختيارك الخاطئ</span>`;
+                        } else {
+                            optionStyle = "bg-slate-900/30 border-slate-900 text-slate-600 opacity-50";
+                        }
+                    }
+
+                    optionsHTML += `
+                        <button 
+                            onclick="selectAnswer(${q.id}, ${optIdx})" 
+                            ${isAnswered ? 'disabled' : ''} 
+                            class="w-full text-right p-4 rounded-xl border transition-all duration-200 flex items-center gap-3 ${optionStyle}">
+                            <span class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-mono">
+                                ${String.fromCharCode(65 + optIdx)}
+                            </span>
+                            <span class="text-sm font-medium leading-relaxed">${opt}</span>
+                            ${badgeHTML}
+                        </button>
+                    `;
+                });
+
+                // Explanation Box HTML
+                let explanationHTML = '';
+                if (isAnswered) {
+                    explanationHTML = `
+                        <div class="mt-5 p-4 rounded-xl text-sm leading-relaxed border ${
+                            isCorrect 
+                                ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300' 
+                                : 'bg-slate-900/90 border-pink-500/30 text-slate-200'
+                        }">
+                            <div class="flex items-center gap-2 font-bold mb-2 ${isCorrect ? 'text-emerald-400' : 'text-pink-400'}">
+                                <i class="fa-solid ${isCorrect ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>
+                                ${isCorrect ? 'تفسير الإجابة الصحيحة:' : 'لماذا خطأ وما هي الإجابة الصحيحة؟'}
+                            </div>
+                            <p class="text-xs md:text-sm text-slate-300">
+                                ${isCorrect ? q.explanations.correct : q.explanations.incorrect}
+                            </p>
+                        </div>
+                    `;
+                }
+
+                qCard.innerHTML = `
+                    <div class="flex justify-between items-center gap-2 mb-3">
+                        <span class="text-xs px-2.5 py-1 rounded-md bg-purple-950/60 border border-purple-800/50 text-purple-300 font-mono">
+                            ${q.chapterTitle}
+                        </span>
+                        <span class="text-xs text-slate-500 font-mono">Question #${index + 1}</span>
+                    </div>
+                    <h3 class="text-base md:text-lg font-bold text-slate-100 mb-5 leading-snug dir-ltr text-left">
+                        ${q.question}
+                    </h3>
+                    <div class="space-y-3 dir-ltr">
+                        ${optionsHTML}
+                    </div>
+                    ${explanationHTML}
+                `;
+
+                questionContainer.appendChild(qCard);
+            });
+
+            updateProgress();
+        }
+
+        // Filter Helper
+        function getFilteredQuestions() {
+            if (currentFilter === 'all') return quizQuestions;
+            return quizQuestions.filter(q => q.chapter === parseInt(currentFilter));
+        }
+
+        // Answer Handling Action
+        window.selectAnswer = function(questionId, selectedIdx) {
+            if (userAnswers.hasOwnProperty(questionId)) return;
+            
+            userAnswers[questionId] = selectedIdx;
+            renderQuiz();
+        };
+
+        // Update Stats & Progress Calculation
+        function updateProgress() {
+            const filteredQuestions = getFilteredQuestions();
+            const totalCount = filteredQuestions.length;
+            
+            let answeredCount = 0;
+            let correctCount = 0;
+
+            filteredQuestions.forEach(q => {
+                if (userAnswers.hasOwnProperty(q.id)) {
+                    answeredCount++;
+                    if (userAnswers[q.id] === q.correctAnswer) {
+                        correctCount++;
+                    }
+                }
+            });
+
+            const remainingCount = totalCount - answeredCount;
+            const percentage = totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
+
+            scoreCounterEl.textContent = `${correctCount}/${answeredCount}`;
+            remainingCounterEl.textContent = remainingCount;
+            progressBarEl.style.width = `${percentage}%`;
+            progressPercentEl.textContent = `${percentage}%`;
+
+            // Check if user completed all questions in current view
+            if (totalCount > 0 && answeredCount === totalCount) {
+                showCompletionSummary(correctCount, totalCount);
+            } else {
+                completionSummaryEl.classList.add('hidden');
+            }
+        }
+
+        // Final Summary Display
+        function showCompletionSummary(correct, total) {
+            const percentage = Math.round((correct / total) * 100);
+            
+            document.getElementById('finalScoreText').textContent = `${correct} / ${total}`;
+            document.getElementById('finalPercentageText').textContent = `${percentage}%`;
+            
+            const gradeEl = document.getElementById('finalGradeText');
+            if (percentage >= 90) {
+                gradeEl.textContent = "ممتاز مرتفع (Excellent)";
+                gradeEl.className = "text-base font-bold text-emerald-400 mt-1";
+            } else if (percentage >= 75) {
+                gradeEl.textContent = "جيد جداً (Very Good)";
+                gradeEl.className = "text-base font-bold text-cyan-400 mt-1";
+            } else if (percentage >= 60) {
+                gradeEl.textContent = "جيد (Good)";
+                gradeEl.className = "text-base font-bold text-yellow-400 mt-1";
+            } else {
+                gradeEl.textContent = "يحتاج إلى مراجعة (Needs Review)";
+                gradeEl.className = "text-base font-bold text-pink-400 mt-1";
+            }
+
+            completionSummaryEl.classList.remove('hidden');
+        }
+
+        // Reset App State
+        function resetQuiz() {
+            userAnswers = {};
+            completionSummaryEl.classList.add('hidden');
+            renderQuiz();
+        }
+
+        resetQuizBtn.addEventListener('click', resetQuiz);
+        restartQuizBtn.addEventListener('click', resetQuiz);
+
+        // App Launch
+        renderQuiz();
+    </script>
+</body>
+</html>
