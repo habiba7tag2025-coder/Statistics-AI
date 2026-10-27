@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz: Statistical Models & Neural Networks</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        neon: {
+                            blue: '#00f0ff',
+                            purple: '#7000ff',
+                            pink: '#ff007f',
+                            green: '#00ff66',
+                            yellow: '#ffe600'
+                        },
+                        cyber: {
+                            dark: '#080b14',
+                            card: 'rgba(15, 23, 42, 0.65)',
+                            border: 'rgba(255, 255, 255, 0.1)',
+                        }
+                    },
+                    boxShadow: {
+                        'neon-blue': '0 0 15px rgba(0, 240, 255, 0.4)',
+                        'neon-purple': '0 0 15px rgba(112, 0, 255, 0.4)',
+                        'neon-green': '0 0 15px rgba(0, ff, 102, 0.4)',
+                        'neon-pink': '0 0 15px rgba(255, 0, 127, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #05070f;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.15) 0%, transparent 40%),
+                linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(13, 18, 36, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .glass-card {
+            background: rgba(21, 29, 53, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 240, 255, 0.3);
+            box-shadow: 0 8px 25px -5px rgba(0, 240, 255, 0.15);
+        }
+
+        .option-btn {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: rgba(30, 58, 138, 0.4);
+            border-color: #00f0ff;
+            transform: translateX(4px);
+        }
+
+        .option-btn.selected-correct {
+            background: rgba(0, 255, 102, 0.15) !important;
+            border-color: #00ff66 !important;
+            color: #a7f3d0 !important;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+        }
+
+        .option-btn.selected-wrong {
+            background: rgba(255, 0, 127, 0.15) !important;
+            border-color: #ff007f !important;
+            color: #fecdd3 !important;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.2);
+        }
+
+        .option-btn.show-correct {
+            background: rgba(0, 240, 255, 0.12) !important;
+            border-color: #00f0ff !important;
+            color: #bae6fd !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #05070f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-neon-blue selection:text-black">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 py-3.5">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-neon-purple to-neon-blue p-0.5 shadow-neon-blue">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                        <i class="fa-solid fa-brain text-neon-blue text-lg"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-white tracking-tight leading-none flex items-center gap-2">
+                        ANN & Stats <span class="text-xs font-mono px-2 py-0.5 rounded bg-neon-purple/20 text-neon-blue border border-neon-purple/30">Cyber-Quiz</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-0.5">Based on Arminger & Enache Research Paper</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar Header -->
+            <div class="flex items-center gap-4 text-xs font-mono bg-slate-900/80 px-4 py-2 rounded-lg border border-slate-800">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-slate-400">Score:</span>
+                    <span id="header-score" class="text-neon-green font-bold text-sm">0</span>
+                </div>
+                <div class="h-3 w-px bg-slate-700"></div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-slate-400">Answered:</span>
+                    <span id="header-progress" class="text-neon-blue font-bold text-sm">0/20</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        
+        <!-- Category & Controls Bar -->
+        <div class="glass-panel rounded-2xl p-4 mb-6 shadow-2xl">
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+                
+                <!-- Filter Tabs -->
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none" id="chapter-filters">
+                    <!-- Dynamic Buttons Generated via JS -->
+                </div>
+
+                <!-- Progress Bar Container -->
+                <div class="flex items-center gap-3 min-w-[240px]">
+                    <div class="flex-1 bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-800">
+                        <div id="overall-progress-bar" class="bg-gradient-to-r from-neon-purple via-neon-blue to-neon-green h-full w-0 transition-all duration-300"></div>
+                    </div>
+                    <span id="overall-percentage" class="text-xs font-mono text-neon-blue font-semibold min-w-[35px] text-right">0%</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Quiz Container Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Main Question Area -->
+            <div class="lg:col-col-span-8 lg:col-span-8 flex flex-col gap-6">
+                
+                <div id="quiz-card" class="glass-panel rounded-2xl p-6 sm:p-8 relative overflow-hidden shadow-2xl">
+                    <!-- Chapter Badge & Type -->
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <span id="q-chapter-badge" class="px-3 py-1 rounded-full text-xs font-mono font-medium bg-neon-purple/20 text-neon-blue border border-neon-purple/40">
+                            Chapter 1
+                        </span>
+                        <span id="q-type-badge" class="text-xs font-mono text-slate-400 flex items-center gap-1">
+                            <i class="fa-solid fa-list-check text-neon-yellow"></i> MCQ
+                        </span>
+                    </div>
+
+                    <!-- Question Text -->
+                    <h2 id="q-text" class="text-lg sm:text-xl font-semibold text-white mb-6 leading-relaxed">
+                        Loading question...
+                    </h2>
+
+                    <!-- Options Container -->
+                    <div id="options-container" class="space-y-3 mb-6">
+                        <!-- Options generated by JS -->
+                    </div>
+
+                    <!-- Explanation Box (Hidden by default) -->
+                    <div id="explanation-box" class="hidden p-4 rounded-xl border transition-all duration-300 mb-4">
+                        <div class="flex items-start gap-3">
+                            <div id="exp-icon-container" class="mt-0.5 text-lg"></div>
+                            <div class="space-y-1">
+                                <h4 id="exp-title" class="font-bold text-sm">Explanation</h4>
+                                <p id="exp-text" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Footer Actions -->
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-800">
+                        <button id="prev-btn" onclick="navigateQuestion(-1)" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-left"></i> Previous
+                        </button>
+                        
+                        <span id="q-number-indicator" class="text-xs font-mono text-slate-400">Question 1 of 20</span>
+
+                        <button id="next-btn" onclick="navigateQuestion(1)" class="px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-neon-blue to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black shadow-neon-blue transition-all flex items-center gap-2">
+                            Next <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Sidebar / Quick Navigator & Analytics -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Quick Navigation Grid -->
+                <div class="glass-panel rounded-2xl p-5 shadow-xl">
+                    <h3 class="text-sm font-bold text-white mb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-grip text-neon-blue mr-2"></i> Question Grid</span>
+                        <span class="text-xs font-mono text-slate-400" id="answered-count-badge">0/20 Done</span>
+                    </h3>
+                    <div id="question-grid" class="grid grid-cols-5 gap-2">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Live Score Dashboard -->
+                <div class="glass-panel rounded-2xl p-5 shadow-xl space-y-4">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-neon-purple"></i> Session Stats
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-center">
+                            <span class="text-xs text-slate-400 block mb-1">Correct</span>
+                            <span id="stat-correct" class="text-xl font-bold font-mono text-neon-green">0</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-center">
+                            <span class="text-xs text-slate-400 block mb-1">Wrong</span>
+                            <span id="stat-wrong" class="text-xl font-bold font-mono text-neon-pink">0</span>
+                        </div>
+                    </div>
+
+                    <button onclick="finishQuiz()" class="w-full py-2.5 rounded-xl text-xs font-bold bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-blue border border-neon-purple/50 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-flag-checkered"></i> Finish & See Summary
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Results Summary -->
+    <div id="results-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-neon-blue/30 shadow-2xl relative overflow-hidden max-h-[90vh] flex flex-col">
+            
+            <div class="text-center space-y-2 mb-6">
+                <div class="w-16 h-16 rounded-full bg-neon-purple/20 border border-neon-purple text-neon-blue flex items-center justify-center mx-auto text-2xl shadow-neon-purple">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white">Quiz Completed!</h2>
+                <p class="text-xs text-slate-400">Statistical Models & Artificial Neural Networks Assessment</p>
+            </div>
+
+            <!-- Score Cards -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 text-center">
+                    <span class="text-xs text-slate-400 block">Final Score</span>
+                    <span id="modal-score" class="text-2xl font-extrabold font-mono text-neon-blue">0/20</span>
+                </div>
+                <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 text-center">
+                    <span class="text-xs text-slate-400 block">Accuracy</span>
+                    <span id="modal-accuracy" class="text-2xl font-extrabold font-mono text-neon-green">0%</span>
+                </div>
+                <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 text-center">
+                    <span class="text-xs text-slate-400 block">Grade</span>
+                    <span id="modal-grade" class="text-2xl font-extrabold font-mono text-neon-yellow">-</span>
+                </div>
+            </div>
+
+            <!-- Chapter Performance Breakdown -->
+            <div class="flex-1 overflow-y-auto mb-6 pr-2 space-y-3">
+                <h4 class="text-xs font-mono uppercase text-slate-400 tracking-wider">Chapter Performance Breakdown</h4>
+                <div id="chapter-breakdown-list" class="space-y-2">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <button onclick="resetQuiz()" class="flex-1 py-3 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 transition-all">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Retry All
+                </button>
+                <button onclick="closeModal()" class="flex-1 py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-neon-blue to-blue-600 hover:from-cyan-400 text-black shadow-neon-blue transition-all">
+                    Review Answers
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript Quiz Logic -->
+    <script>
+        const questions = [
+            // Chapter 1
+            {
+                id: 1,
+                chapter: 1,
+                type: "MCQ",
+                question: "What is the primary objective of an Artificial Neural Network (ANN) as defined in Chapter 1?",
+                options: [
+                    "Exact analytical integration of deterministic functions",
+                    "Approximating unknown deterministic or stochastic relations between inputs (x) and targets (y)",
+                    "Sorting large unstructured relational databases",
+                    "Computing exact linear covariance matrices"
+                ],
+                correct: 1,
+                explanation: "ANNs are nonparametric/semiparametric approximators designed to estimate unknown functions (deterministic or stochastic) mapping independent variables (x) to dependent variables (y)."
+            },
+            {
+                id: 2,
+                chapter: 1,
+                type: "MCQ",
+                question: "In prediction error analysis, total error is decomposed into which two core components?",
+                options: [
+                    "Random error (inherent noise) and approximation error (model simplification)",
+                    "Systematic operational error and human bias",
+                    "Rounding error and floating-point truncation error",
+                    "Sampling error and measurement instrument error"
+                ],
+                correct: 0,
+                explanation: "Total prediction error = Random Noise (unexplainable variance in y) + Approximation Error (error stemming from using a simplified network architecture)."
+            },
+            {
+                id: 3,
+                chapter: 1,
+                type: "MCQ",
+                question: "In the statistical translation table, computer science 'Training' corresponds to statistical:",
+                options: [
+                    "Hypothesis testing",
+                    "Parameter estimation",
+                    "Variance reduction",
+                    "Sample size calculation"
+                ],
+                correct: 1,
+                explanation: "In neural networks, 'Training' is the process of adjusting weights based on data, which is equivalent to 'Parameter Estimation' in traditional statistics."
+            },
+            {
+                id: 4,
+                chapter: 1,
+                type: "MCQ",
+                question: "Which transfer function maps real inputs to an output range strictly in the open interval (-1, 1)?",
+                options: [
+                    "Standard Normal CDF",
+                    "Logistic Sigmoid function",
+                    "Hyperbolic Tangent (Tanh)",
+                    "Linear Identity function"
+                ],
+                correct: 2,
+                explanation: "The Hyperbolic Tangent (Tanh) activation function outputs values in (-1, 1), whereas the Logistic sigmoid outputs in (0, 1)."
+            },
+            // Chapter 2
+            {
+                id: 5,
+                chapter: 2,
+                type: "MCQ",
+                question: "The ADALINE network architecture consists of a single perceptron and is statistically equivalent to:",
+                options: [
+                    "Multiple logistic regression",
+                    "Simple linear regression / Linear Discriminant Analysis",
+                    "Nonlinear structural equation models",
+                    "Principal component analysis"
+                ],
+                correct: 1,
+                explanation: "ADALINE uses linear transfer functions with a single output node, making it mathematically identical to standard linear regression or linear discriminant analysis."
+            },
+            {
+                id: 6,
+                chapter: 2,
+                type: "MCQ",
+                question: "What structural feature distinguishes standard Feedforward Networks (MLP) from Recurrent Networks?",
+                options: [
+                    "Lack of output layer units",
+                    "Complete absence of feedback loops or cyclic connections",
+                    "Exclusive use of linear transfer functions",
+                    "Fixed zero weights across layers"
+                ],
+                correct: 1,
+                explanation: "Feedforward networks flow signals strictly in one direction (input -> hidden -> output) with no feedback or recurrent connections."
+            },
+            {
+                id: 7,
+                chapter: 2,
+                type: "MCQ",
+                question: "Kolmogorov's and White's approximation theorems establish that single-hidden-layer MLPs:",
+                options: [
+                    "Can only fit linear hyperplanes",
+                    "Are universal approximators for any continuous function given enough hidden units",
+                    "Require infinite training iterations to converge",
+                    "Always overfit finite sample sizes regardless of regularization"
+                ],
+                correct: 1,
+                explanation: "Universal Approximation Theorems prove that an MLP with a single hidden layer and non-linear activations can approximate any continuous function to arbitrary precision."
+            },
+            {
+                id: 8,
+                chapter: 2,
+                type: "TF",
+                question: "Traditional statistical models such as GLM (Generalized Linear Models) and LISREL can be represented as specific instances of neural network architectures.",
+                options: ["True", "False"],
+                correct: 0,
+                explanation: "True. Chapter 2 outlines 10 classical statistical models (including Linear, Logistic, Probit, GLM, and LISREL) as restricted special cases of neural networks."
+            },
+            // Chapter 3
+            {
+                id: 9,
+                chapter: 3,
+                type: "MCQ",
+                question: "Which distance metric is primarily used when evaluating binary/probability outcomes in ANN parameter estimation?",
+                options: [
+                    "Mahalanobis distance",
+                    "Euclidean distance",
+                    "Kullback-Leibler (KL) distance",
+                    "Chebyshev distance"
+                ],
+                correct: 2,
+                explanation: "Kullback-Leibler distance measures discrepancy between probability distributions, making it ideal for binary or categorical classification loss functions."
+            },
+            {
+                id: 10,
+                chapter: 3,
+                type: "MCQ",
+                question: "The expected distance Q(θ) between true and estimated models decomposes into:",
+                options: [
+                    "Stochastic variance + approximation error measure",
+                    "Bias only",
+                    "Sample size + parameter count",
+                    "Gradient magnitude + learning rate"
+                ],
+                correct: 0,
+                explanation: "Chapter 3 proves Q(θ) decomposes into inherent stochastic variation in the true distribution and the approximation error of the chosen model family."
+            },
+            {
+                id: 11,
+                chapter: 3,
+                type: "TF",
+                question: "The Kullback-Leibler Information Criterion (KLIC) provides the theoretical foundation for Quasi Maximum Likelihood (QML) estimation.",
+                options: ["True", "False"],
+                correct: 0,
+                explanation: "True. Minimizing KLIC is equivalent to maximizing the quasi-log-likelihood when the true density is unknown."
+            },
+            // Chapter 4
+            {
+                id: 12,
+                chapter: 4,
+                type: "MCQ",
+                question: "Quasi Maximum Likelihood (QML) estimation guarantees parameter consistency under which key condition?",
+                options: [
+                    "Exact normality of residual errors",
+                    "Correct specification of the conditional expectation function E[y|x]",
+                    "Zero variance in target variables",
+                    "Equal number of parameters and observations"
+                ],
+                correct: 1,
+                explanation: "QML estimators remain consistent for parameter estimation as long as the conditional mean is correctly specified, even if the assumed likelihood distribution is wrong."
+            },
+            {
+                id: 13,
+                chapter: 4,
+                type: "MCQ",
+                question: "Why is the 'Information Sandwich' covariance matrix required in QML inference?",
+                options: [
+                    "To account for discrepancy between the true probability density and assumed model density",
+                    "Because weight matrices are strictly non-invertible",
+                    "To force gradient vectors to zero",
+                    "Because training data contains no variance"
+                ],
+                correct: 0,
+                explanation: "The Sandwich estimator (H^-1 * J * H^-1) adjusts standard errors and Wald tests when the assumed likelihood family does not match the true data distribution."
+            },
+            {
+                id: 14,
+                chapter: 4,
+                type: "TF",
+                question: "Nonlinear Least Squares (NLS) is a special case of distance minimization using the Euclidean metric under zero mean error assumptions.",
+                options: ["True", "False"],
+                correct: 0,
+                explanation: "True. Minimizing squared errors (NLS) is mathematically identical to minimizing Euclidean distance between predicted and target values."
+            },
+            // Chapter 5
+            {
+                id: 15,
+                chapter: 5,
+                type: "MCQ",
+                question: "Backpropagation updates weight vectors iteratively using which foundational calculus rule?",
+                options: [
+                    "L'Hôpital's rule",
+                    "Chain rule for partial derivatives",
+                    "Bayes' Theorem",
+                    "Cramer's rule"
+                ],
+                correct: 1,
+                explanation: "Backpropagation calculates partial derivatives of the loss function with respect to layer weights by recursively applying the chain rule from output back to input."
+            },
+            {
+                id: 16,
+                chapter: 5,
+                type: "MCQ",
+                question: "Adding weight penalty functions (such as weight decay) to the objective function is equivalent to:",
+                options: [
+                    "Unconstrained steepest descent",
+                    "Bayesian prior distribution regularization",
+                    "Maximum Likelihood estimation with infinite variance",
+                    "Linear discriminant analysis"
+                ],
+                correct: 1,
+                explanation: "In a Bayesian framework, penalty terms correspond to incorporating prior distributions over the weights to prevent explosive growth and overfitting."
+            },
+            {
+                id: 17,
+                chapter: 5,
+                type: "MCQ",
+                question: "Which test statistic is used to test linear parameter constraints (Aθ* = 0) and asymptotically follows a Chi-square distribution?",
+                options: [
+                    "Student's t-statistic",
+                    "Wald Statistic",
+                    "Kolmogorov-Smirnov test",
+                    "Durbin-Watson statistic"
+                ],
+                correct: 1,
+                explanation: "The Wald statistic W = (Aθ)^T [A Cov(θ) A^T]^-1 (Aθ) follows an asymptotic Chi-square distribution under the null hypothesis."
+            },
+            {
+                id: 18,
+                chapter: 5,
+                type: "MCQ",
+                question: "Why is testing for redundant or unneeded hidden units statistically challenging?",
+                options: [
+                    "Hidden units cannot be counted",
+                    "Parameters become unidentifiable under the null hypothesis",
+                    "The loss function becomes linear",
+                    "Error variances become negative"
+                ],
+                correct: 1,
+                explanation: "When testing if a hidden unit is redundant, the associated weights are unidentified under the null hypothesis, invalidating standard Wald/LR asymptotic theory."
+            },
+            {
+                id: 19,
+                chapter: 5,
+                type: "TF",
+                question: "Adaptive step-size algorithms dynamically adjust learning rates based on gradients to accelerate convergence and avoid stopping in flat regions.",
+                options: ["True", "False"],
+                correct: 0,
+                explanation: "True. Adaptive step-size methods modify the learning rate per parameter/step, preventing oscillation in steep canyons and slow progress in flat plateaus."
+            },
+            {
+                id: 20,
+                chapter: 5,
+                type: "TF",
+                question: "Backpropagation can only operate in batch mode and cannot update parameters sequentially per individual observation.",
+                options: ["True", "False"],
+                correct: 1,
+                explanation: "False. Backpropagation was originally formulated for online/sequential learning (Robbins-Monro stochastic approximation) as well as mini-batch/batch mode."
+            }
+        ];
+
+        // State Management
+        let currentFilter = 'all'; // 'all', 1, 2, 3, 4, 5
+        let filteredIndices = [];
+        let currentFilteredPointer = 0;
+        let userAnswers = {}; // { qId: selectedOptionIndex }
+
+        // DOM Elements
+        const qText = document.getElementById('q-text');
+        const qChapterBadge = document.getElementById('q-chapter-badge');
+        const qTypeBadge = document.getElementById('q-type-badge');
+        const optionsContainer = document.getElementById('options-container');
+        const explanationBox = document.getElementById('explanation-box');
+        const expTitle = document.getElementById('exp-title');
+        const expText = document.getElementById('exp-text');
+        const expIconContainer = document.getElementById('exp-icon-container');
+        const qNumberIndicator = document.getElementById('q-number-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderFilters();
+            applyFilter('all');
+        });
+
+        function renderFilters() {
+            const container = document.getElementById('chapter-filters');
+            const chapters = [
+                { id: 'all', label: 'All Chapters' },
+                { id: 1, label: 'Ch 1: Terminology' },
+                { id: 2, label: 'Ch 2: Architectures' },
+                { id: 3, label: 'Ch 3: Info Theory' },
+                { id: 4, label: 'Ch 4: Quasi ML' },
+                { id: 5, label: 'Ch 5: Estimation' }
+            ];
+
+            container.innerHTML = chapters.map(ch => `
+                <button onclick="applyFilter('${ch.id}')" id="filter-btn-${ch.id}" 
+                    class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800">
+                    ${ch.label}
+                </button>
+            `).join('');
+        }
+
+        function applyFilter(chapId) {
+            currentFilter = chapId === 'all' ? 'all' : parseInt(chapId);
+            
+            // Highlight filter buttons
+            document.querySelectorAll('#chapter-filters button').forEach(btn => {
+                btn.className = "px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800";
+            });
+            const activeBtn = document.getElementById(`filter-btn-${chapId}`);
+            if (activeBtn) {
+                activeBtn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all bg-neon-purple/20 text-neon-blue border border-neon-purple/50 shadow-neon-purple";
+            }
+
+            // Filter questions
+            filteredIndices = [];
+            questions.forEach((q, idx) => {
+                if (currentFilter === 'all' || q.chapter === currentFilter) {
+                    filteredIndices.push(idx);
+                }
+            });
+
+            currentFilteredPointer = 0;
+            renderQuestion();
+            renderQuestionGrid();
+            updateStats();
+        }
+
+        function renderQuestion() {
+            if (filteredIndices.length === 0) return;
+
+            const qIndex = filteredIndices[currentFilteredPointer];
+            const q = questions[qIndex];
+
+            // Render Meta Badges
+            qChapterBadge.innerText = `Chapter ${q.chapter}`;
+            qTypeBadge.innerHTML = q.type === 'MCQ' 
+                ? `<i class="fa-solid fa-list-check text-neon-yellow"></i> Multiple Choice`
+                : `<i class="fa-solid fa-toggle-on text-neon-green"></i> True / False`;
+
+            qText.innerText = q.question;
+            qNumberIndicator.innerText = `Question ${currentFilteredPointer + 1} of ${filteredIndices.length}`;
+
+            // Buttons State
+            prevBtn.disabled = currentFilteredPointer === 0;
+            nextBtn.innerText = currentFilteredPointer === filteredIndices.length - 1 ? 'Finish' : 'Next';
+
+            // Render Options
+            const isAnswered = userAnswers.hasOwnProperty(q.id);
+            const selectedOpt = userAnswers[q.id];
+
+            optionsContainer.innerHTML = '';
+            q.options.forEach((optText, optIdx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full p-3.5 rounded-xl text-left text-xs sm:text-sm font-medium flex items-center justify-between gap-3`;
+                
+                let iconHtml = `<span class="w-6 h-6 rounded-lg bg-slate-800/80 border border-slate-700 flex items-center justify-center text-xs font-mono text-slate-400 font-bold shrink-0">${String.fromCharCode(65 + optIdx)}</span>`;
+                
+                if (isAnswered) {
+                    btn.disabled = true;
+                    if (optIdx === q.correct) {
+                        btn.classList.add('show-correct');
+                        iconHtml = `<span class="w-6 h-6 rounded-lg bg-neon-blue/20 text-neon-blue border border-neon-blue flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-check"></i></span>`;
+                    }
+                    if (optIdx === selectedOpt && selectedOpt !== q.correct) {
+                        btn.classList.add('selected-wrong');
+                        iconHtml = `<span class="w-6 h-6 rounded-lg bg-neon-pink/20 text-neon-pink border border-neon-pink flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-xmark"></i></span>`;
+                    }
+                    if (optIdx === selectedOpt && selectedOpt === q.correct) {
+                        btn.classList.add('selected-correct');
+                    }
+                } else {
+                    btn.onclick = () => selectOption(q.id, optIdx);
+                }
+
+                btn.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        ${iconHtml}
+                        <span class="leading-snug">${optText}</span>
+                    </div>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Render Explanation Box if Answered
+            if (isAnswered) {
+                explanationBox.classList.remove('hidden');
+                const isCorrect = selectedOpt === q.correct;
+
+                if (isCorrect) {
+                    explanationBox.className = "p-4 rounded-xl border bg-emerald-950/30 border-emerald-500/40 text-emerald-200 mb-4";
+                    expIconContainer.innerHTML = `<i class="fa-solid fa-circle-check text-neon-green"></i>`;
+                    expTitle.innerText = "Correct Answer!";
+                    expTitle.className = "font-bold text-sm text-neon-green";
+                } else {
+                    explanationBox.className = "p-4 rounded-xl border bg-rose-950/30 border-rose-500/40 text-rose-200 mb-4";
+                    expIconContainer.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-neon-pink"></i>`;
+                    expTitle.innerText = "Incorrect Answer";
+                    expTitle.className = "font-bold text-sm text-neon-pink";
+                }
+
+                expText.innerText = q.explanation;
+            } else {
+                explanationBox.classList.add('hidden');
+            }
+
+            renderQuestionGrid();
+        }
+
+        function selectOption(qId, optionIdx) {
+            userAnswers[qId] = optionIdx;
+            renderQuestion();
+            updateStats();
+        }
+
+        function navigateQuestion(direction) {
+            const newPointer = currentFilteredPointer + direction;
+            if (newPointer >= 0 && newPointer < filteredIndices.length) {
+                currentFilteredPointer = newPointer;
+                renderQuestion();
+            } else if (newPointer >= filteredIndices.length) {
+                finishQuiz();
+            }
+        }
+
+        function renderQuestionGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+
+            filteredIndices.forEach((qIndex, pointer) => {
+                const q = questions[qIndex];
+                const isAnswered = userAnswers.hasOwnProperty(q.id);
+                const isCorrect = isAnswered && userAnswers[q.id] === q.correct;
+                const isCurrent = pointer === currentFilteredPointer;
+
+                const btn = document.createElement('button');
+                btn.onclick = () => {
+                    currentFilteredPointer = pointer;
+                    renderQuestion();
+                };
+
+                let cls = "h-9 rounded-lg text-xs font-mono font-bold transition-all flex items-center justify-center border ";
+                
+                if (isCurrent) {
+                    cls += "ring-2 ring-neon-blue ring-offset-2 ring-offset-slate-950 ";
+                }
+
+                if (isAnswered) {
+                    if (isCorrect) {
+                        cls += "bg-neon-green/20 text-neon-green border-neon-green/50";
+                    } else {
+                        cls += "bg-neon-pink/20 text-neon-pink border-neon-pink/50";
+                    }
+                } else {
+                    cls += "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700";
+                }
+
+                btn.className = cls;
+                btn.innerText = pointer + 1;
+                grid.appendChild(btn);
+            });
+
+            document.getElementById('answered-count-badge').innerText = `${Object.keys(userAnswers).length}/${questions.length} Done`;
+        }
+
+        function updateStats() {
+            let correct = 0;
+            let wrong = 0;
+
+            Object.keys(userAnswers).forEach(qId => {
+                const q = questions.find(item => item.id == qId);
+                if (q) {
+                    if (userAnswers[qId] === q.correct) {
+                        correct++;
+                    } else {
+                        wrong++;
+                    }
+                }
+            });
+
+            const answeredCount = Object.keys(userAnswers).length;
+            const totalQuestions = questions.length;
+            const percentage = Math.round((answeredCount / totalQuestions) * 100);
+
+            document.getElementById('header-score').innerText = correct;
+            document.getElementById('header-progress').innerText = `${answeredCount}/${totalQuestions}`;
+            document.getElementById('stat-correct').innerText = correct;
+            document.getElementById('stat-wrong').innerText = wrong;
+
+            document.getElementById('overall-progress-bar').style.width = `${percentage}%`;
+            document.getElementById('overall-percentage').innerText = `${percentage}%`;
+        }
+
+        function finishQuiz() {
+            let correct = 0;
+            const total = questions.length;
+
+            questions.forEach(q => {
+                if (userAnswers[q.id] === q.correct) correct++;
+            });
+
+            const accuracy = Math.round((correct / total) * 100);
+            
+            let grade = 'F';
+            if (accuracy >= 90) grade = 'A+';
+            else if (accuracy >= 80) grade = 'A';
+            else if (accuracy >= 70) grade = 'B';
+            else if (accuracy >= 60) grade = 'C';
+            else if (accuracy >= 50) grade = 'D';
+
+            document.getElementById('modal-score').innerText = `${correct}/${total}`;
+            document.getElementById('modal-accuracy').innerText = `${accuracy}%`;
+            document.getElementById('modal-grade').innerText = grade;
+
+            // Render Breakdown
+            const breakdownContainer = document.getElementById('chapter-breakdown-list');
+            breakdownContainer.innerHTML = '';
+
+            [1, 2, 3, 4, 5].forEach(chapNum => {
+                const chapQuestions = questions.filter(q => q.chapter === chapNum);
+                let chapCorrect = 0;
+                let chapAnswered = 0;
+
+                chapQuestions.forEach(q => {
+                    if (userAnswers.hasOwnProperty(q.id)) {
+                        chapAnswered++;
+                        if (userAnswers[q.id] === q.correct) chapCorrect++;
+                    }
+                });
+
+                const chapPct = chapQuestions.length > 0 ? Math.round((chapCorrect / chapQuestions.length) * 100) : 0;
+
+                const row = document.createElement('div');
+                row.className = "bg-slate-900/60 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs";
+                row.innerHTML = `
+                    <span class="font-medium text-slate-300">Chapter ${chapNum}</span>
+                    <div class="flex items-center gap-3">
+                        <span class="font-mono text-slate-400">${chapCorrect}/${chapQuestions.length}</span>
+                        <div class="w-20 bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-neon-blue h-full" style="width: ${chapPct}%"></div>
+                        </div>
+                        <span class="font-mono text-neon-blue font-bold w-9 text-right">${chapPct}%</span>
+                    </div>
+                `;
+                breakdownContainer.appendChild(row);
+            });
+
+            document.getElementById('results-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        function resetQuiz() {
+            userAnswers = {};
+            closeModal();
+            applyFilter('all');
+        }
+    </script>
+</body>
+</html>

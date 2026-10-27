@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Masterclass: Interactive Quiz - Lecture 1</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .correct-anim {
+            animation: pulse-green 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .wrong-anim {
+            animation: shake-red 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes pulse-green {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        @keyframes shake-red {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Header Navigation -->
+    <header class="w-full bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                    <i class="fa-brands fa-python text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-white leading-tight">Python Masterclass</h1>
+                    <p class="text-xs text-slate-400">Lecture 1: IT & Python Basic Concepts</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-xs bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-full font-medium hidden sm:inline-block">
+                    Prof. Gamal El-Shawadfy
+                </span>
+                <button onclick="resetQuiz()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-right"></i> Restart
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8 flex flex-col justify-center">
+
+        <!-- Welcome View -->
+        <div id="welcome-card" class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-8 sm:p-12 text-center shadow-2xl backdrop-blur-md">
+            <div class="w-20 h-20 bg-brand-500/10 text-brand-500 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-brand-500/20 shadow-inner">
+                <i class="fa-solid fa-graduation-cap text-4xl"></i>
+            </div>
+            <h2 class="text-3xl font-extrabold text-white mb-3">Lecture 1 Interactive Exam</h2>
+            <p class="text-slate-400 max-w-xl mx-auto mb-8 leading-relaxed">
+                Test your understanding of Hardware, Software, Storage Systems, Barcodes, Security, and Python Fundamentals with instant explanations for every answer.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto mb-8 text-left text-xs">
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 flex items-center space-x-3">
+                    <i class="fa-solid fa-list-check text-brand-500 text-lg"></i>
+                    <div>
+                        <p class="font-semibold text-white">15 Questions</p>
+                        <p class="text-slate-400">MCQ & True/False</p>
+                    </div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 flex items-center space-x-3">
+                    <i class="fa-solid fa-bolt text-amber-500 text-lg"></i>
+                    <div>
+                        <p class="font-semibold text-white">Instant Feedback</p>
+                        <p class="text-slate-400">Detailed Explanations</p>
+                    </div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 flex items-center space-x-3">
+                    <i class="fa-solid fa-trophy text-emerald-500 text-lg"></i>
+                    <div>
+                        <p class="font-semibold text-white">Score Tracking</p>
+                        <p class="text-slate-400">Performance Report</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="startQuiz()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-600 to-blue-600 hover:from-brand-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-brand-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                Start Interactive Test <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Quiz Container (Hidden initially) -->
+        <div id="quiz-card" class="hidden">
+            <!-- Progress Bar Header -->
+            <div class="mb-6 bg-slate-800/40 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                <div class="flex items-center gap-3">
+                    <span id="question-category" class="text-xs uppercase tracking-wider font-semibold px-2.5 py-1 rounded-md bg-brand-500/20 text-brand-400 border border-brand-500/30">Category</span>
+                    <span id="question-number" class="text-sm font-medium text-slate-400">Question 1 of 15</span>
+                </div>
+                <div class="w-full sm:w-48 bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-gradient-to-r from-brand-500 to-cyan-400 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-xl backdrop-blur-md mb-6">
+                <h3 id="question-text" class="text-xl sm:text-2xl font-bold text-white mb-6 leading-snug">
+                    Question text will appear here?
+                </h3>
+
+                <!-- Options Grid -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Options populated by JS -->
+                </div>
+
+                <!-- Immediate Explanation Box (Hidden by default) -->
+                <div id="explanation-box" class="hidden mt-6 p-5 rounded-xl border transition-all duration-300">
+                    <div class="flex items-start gap-3">
+                        <div id="explanation-icon" class="text-xl mt-0.5"></div>
+                        <div>
+                            <h4 id="explanation-title" class="font-bold text-base mb-1"></h4>
+                            <p id="explanation-text" class="text-sm leading-relaxed opacity-90"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex justify-between items-center">
+                <div class="text-xs text-slate-500">
+                    Select an option to see instantaneous explanation.
+                </div>
+                <button id="next-btn" onclick="nextQuestion()" disabled class="px-6 py-3 bg-slate-700 text-slate-400 font-semibold rounded-xl transition cursor-not-allowed flex items-center gap-2">
+                    Next Question <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Card (Hidden initially) -->
+        <div id="result-card" class="hidden bg-slate-800/80 border border-slate-700/80 rounded-2xl p-8 sm:p-12 text-center shadow-2xl backdrop-blur-md">
+            <div id="result-badge" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-xl">
+                <!-- Icon via JS -->
+            </div>
+            <h2 class="text-3xl font-extrabold text-white mb-2">Quiz Completed!</h2>
+            <p id="result-subtitle" class="text-slate-400 mb-8">Here is your detailed performance breakdown.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto mb-8">
+                <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-700/50">
+                    <p class="text-xs text-slate-400 mb-1 uppercase font-semibold">Final Score</p>
+                    <p id="final-score" class="text-3xl font-extrabold text-white">0/15</p>
+                </div>
+                <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-700/50">
+                    <p class="text-xs text-slate-400 mb-1 uppercase font-semibold">Percentage</p>
+                    <p id="final-percentage" class="text-3xl font-extrabold text-brand-400">0%</p>
+                </div>
+                <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-700/50">
+                    <p class="text-xs text-slate-400 mb-1 uppercase font-semibold">Evaluation</p>
+                    <p id="final-grade" class="text-lg font-bold text-emerald-400 mt-2">Excellent</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="resetQuiz()" class="px-8 py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-lg shadow-brand-500/25 transition">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Retake Exam
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-slate-900 border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+        Professional Master in Python Programming &bull; Supervised by Prof. Gamal El-Shawadfy
+    </footer>
+
+    <!-- Quiz Logic JavaScript -->
+    <script>
+        const questions = [
+            {
+                category: "IT Concepts",
+                question: "Which term describes processed data that answers questions such as Who, What, Where, and When?",
+                options: ["Raw Data", "Information", "Knowledge", "Hardware"],
+                correct: 1,
+                explanation: {
+                    correct: "Correct! Information is the result of organizing and processing raw data to give it context, answering essential questions (Who, What, Where, When).",
+                    wrong: "Incorrect. Raw Data represents unorganized facts. Information is what we get AFTER processing data to answer Who, What, Where, and When. Knowledge refers to practical application (know-how)."
+                }
+            },
+            {
+                category: "Binary & Storage",
+                question: "How many Bits constitute a single Byte?",
+                options: ["4 Bits", "8 Bits", "16 Bits", "1024 Bits"],
+                correct: 1,
+                explanation: {
+                    correct: "Spot on! Exactly 8 Bits (binary zeros and ones) form 1 Byte.",
+                    wrong: "Incorrect. 1 Byte is standardized to 8 Bits. (4 Bits is known as a nibble, and 1024 Bytes equals 1 Kilobyte)."
+                }
+            },
+            {
+                category: "Python Basics",
+                question: "In Python, which data type is used to represent fractional numbers like 3.14 or -0.5?",
+                options: ["Integer", "String", "Float", "Complex"],
+                correct: 2,
+                explanation: {
+                    correct: "Correct! 'Float' represents floating-point real numbers containing decimals.",
+                    wrong: "Incorrect. 'Integer' stores whole numbers without decimals (e.g. 5), 'String' holds text, while 'Float' is the data type for decimal numbers like 3.14."
+                }
+            },
+            {
+                category: "Hardware",
+                question: "Which high-speed memory resides closest to the Microprocessor to speed up data access?",
+                options: ["Cache Memory", "Hard Drive (HDD)", "USB Flash", "Optical Disc"],
+                correct: 0,
+                explanation: {
+                    correct: "Correct! Cache memory is ultra-fast SRAM positioned directly near/on the CPU to store frequently accessed instructions.",
+                    wrong: "Incorrect. Cache memory is built near the processor for instant access. HDDs and USB Flashes are secondary storage, much slower than Cache."
+                }
+            },
+            {
+                category: "Barcode Systems",
+                question: "In the EAN13 European barcode format, what does the prefix code '622' indicate?",
+                options: ["Manufacturer ID", "Country Code (Egypt)", "Product Serial Number", "Check Digit"],
+                correct: 1,
+                explanation: {
+                    correct: "Correct! The GS1 prefix 622 is assigned specifically to Egypt as its country code.",
+                    wrong: "Incorrect. The first 3 digits in EAN13 represent the Country Code (622 is Egypt). The remaining digits specify manufacturer and product codes."
+                }
+            },
+            {
+                category: "Software",
+                question: "Operating Systems (e.g., Windows, macOS) and Device Drivers belong to which software category?",
+                options: ["Application Software", "System Software", "Malware", "Web Browsers"],
+                correct: 1,
+                explanation: {
+                    correct: "Correct! System Software controls hardware operations and provides a platform for applications to run.",
+                    wrong: "Incorrect. Operating Systems and Drivers are 'System Software'. Application Software refers to programs designed for end-users like MS Word or Photoshop."
+                }
+            },
+            {
+                category: "Networking",
+                question: "What type of network covers a restricted geographical area such as a single office building or campus?",
+                options: ["WAN (Wide Area Network)", "LAN (Local Area Network)", "MAN (Metropolitan Network)", "Satellite Network"],
+                correct: 1,
+                explanation: {
+                    correct: "Correct! A LAN (Local Area Network) connects computers within a localized area like an office, school, or home.",
+                    wrong: "Incorrect. LAN covers local areas (buildings/offices). WAN (like the Internet) spans entire countries or continents."
+                }
+            },
+            {
+                category: "Security",
+                question: "Which security tool acts as a barrier monitoring and controlling incoming/outgoing network traffic?",
+                options: ["Firewall", "Spyware", "Adware", "Compiler"],
+                correct: 0,
+                explanation: {
+                    correct: "Correct! A Firewall acts as a security shield filtering traffic based on predefined rules to protect your system.",
+                    wrong: "Incorrect. A Firewall is the protective security barrier. Spyware and Adware are malicious software (malware)."
+                }
+            },
+            {
+                category: "Python Basics",
+                question: "Why do developers widely choose Python for programming?",
+                options: ["Simple & concise syntax", "Object-Oriented & Free", "Vast ecosystem of libraries", "All of the above"],
+                correct: 3,
+                explanation: {
+                    correct: "Correct! Python is popular because it combines clean syntax, free open-source licensing, object-oriented design, and massive library support.",
+                    wrong: "Incorrect. All options listed are true! Python offers simple syntax, open-source freedom, OOP support, and thousands of powerful libraries."
+                }
+            },
+            {
+                category: "Hardware",
+                question: "Which storage technology uses flash memory with no moving parts, making it much faster than magnetic HDDs?",
+                options: ["SSD (Solid State Drive)", "CD-ROM", "CMOS", "Floppy Disk"],
+                correct: 0,
+                explanation: {
+                    correct: "Correct! SSDs use solid-state microchips to read/write data silently and significantly faster than mechanical HDDs.",
+                    wrong: "Incorrect. SSD (Solid State Drive) is the modern flash-based fast storage unit. HDDs and CDs use spinning physical media."
+                }
+            },
+            {
+                category: "IT Concepts",
+                question: "True or False: Knowledge refers strictly to raw, unorganized numbers without context.",
+                options: ["True", "False"],
+                correct: 1,
+                explanation: {
+                    correct: "Correct! That statement is False. Raw numbers are 'Data'. Knowledge represents deep understanding, application, and practical know-how.",
+                    wrong: "Incorrect. The statement is False. Raw numbers are 'Data'. Knowledge implies practical understanding and expertise."
+                }
+            },
+            {
+                category: "Hardware",
+                question: "True or False: Printers and Monitors are classified as Input Units.",
+                options: ["True", "False"],
+                correct: 1,
+                explanation: {
+                    correct: "Correct! That statement is False. Monitors and Printers display or output processed information, so they are Output Units.",
+                    wrong: "Incorrect. The statement is False. Keyboards and Scanners are Input units, while Monitors and Printers are Output units."
+                }
+            },
+            {
+                category: "Barcode Systems",
+                question: "True or False: QR Codes are 2-dimensional (2D) barcodes that store significantly more data than 1D linear barcodes.",
+                options: ["True", "False"],
+                correct: 0,
+                explanation: {
+                    correct: "Correct! That statement is True. QR codes store data both horizontally and vertically, allowing higher storage capacity.",
+                    wrong: "Incorrect. The statement is True. 2D QR codes hold much more data than standard 1D line barcodes."
+                }
+            },
+            {
+                category: "Hardware & Memory",
+                question: "True or False: RAM (Random Access Memory) retains all stored data permanently even after turning off the computer.",
+                options: ["True", "False"],
+                correct: 1,
+                explanation: {
+                    correct: "Correct! That statement is False. RAM is volatile memory, meaning all its data is erased when power is disconnected.",
+                    wrong: "Incorrect. The statement is False. RAM is volatile (temporary). Non-volatile media like HDDs/SSDs retain data permanently."
+                }
+            },
+            {
+                category: "Security",
+                question: "True or False: Spyware and Adware are types of security software used to clean up viruses.",
+                options: ["True", "False"],
+                correct: 1,
+                explanation: {
+                    correct: "Correct! That statement is False. Spyware and Adware are malicious software (Malware) that spy on users or push unwanted ads.",
+                    wrong: "Incorrect. The statement is False. Spyware and Adware are dangerous Malware, NOT protective security tools."
+                }
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        function startQuiz() {
+            document.getElementById('welcome-card').classList.add('hidden');
+            document.getElementById('quiz-card').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            selectedOption = null;
+
+            // Update Progress & Header
+            document.getElementById('question-category').innerText = q.category;
+            document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            // Question Text
+            document.getElementById('question-text').innerText = q.question;
+
+            // Hide Explanation & Disable Next Button
+            const expBox = document.getElementById('explanation-box');
+            expBox.classList.add('hidden');
+            expBox.className = "hidden mt-6 p-5 rounded-xl border transition-all duration-300";
+            
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = true;
+            nextBtn.className = "px-6 py-3 bg-slate-700 text-slate-400 font-semibold rounded-xl transition cursor-not-allowed flex items-center gap-2";
+
+            // Populate Options
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full text-left p-4 rounded-xl border border-slate-700/80 bg-slate-900/50 hover:bg-slate-700/50 text-slate-200 font-medium text-sm flex items-center justify-between group`;
+                btn.onclick = () => selectOption(idx);
+                btn.id = `option-${idx}`;
+                
+                const optionLabel = q.options.length === 2 ? (idx === 0 ? 'A' : 'B') : String.fromCharCode(65 + idx);
+
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 group-hover:bg-brand-600 group-hover:text-white flex items-center justify-center font-bold text-xs transition border border-slate-700">
+                            ${optionLabel}
+                        </span>
+                        <span>${opt}</span>
+                    </div>
+                    <i class="fa-regular fa-circle text-slate-600 group-hover:text-slate-400 icon-status"></i>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(index) {
+            if (selectedOption !== null) return; // Prevent changing choice
+            selectedOption = index;
+
+            const q = questions[currentQuestionIndex];
+            const isCorrect = (index === q.correct);
+
+            if (isCorrect) score++;
+
+            // Highlight buttons
+            q.options.forEach((_, idx) => {
+                const btn = document.getElementById(`option-${idx}`);
+                const icon = btn.querySelector('.icon-status');
+                
+                btn.onclick = null; // Disable clicking
+
+                if (idx === q.correct) {
+                    btn.className = "option-btn w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold text-sm flex items-center justify-between correct-anim";
+                    icon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+                } else if (idx === index && !isCorrect) {
+                    btn.className = "option-btn w-full text-left p-4 rounded-xl border-2 border-rose-500 bg-rose-500/10 text-rose-200 font-semibold text-sm flex items-center justify-between wrong-anim";
+                    icon.className = "fa-solid fa-circle-xmark text-rose-400 text-lg";
+                } else {
+                    btn.className = "option-btn w-full text-left p-4 rounded-xl border border-slate-800 bg-slate-900/30 text-slate-500 text-sm flex items-center justify-between opacity-50";
+                }
+            });
+
+            // Show Explanation Box
+            const expBox = document.getElementById('explanation-box');
+            const expTitle = document.getElementById('explanation-title');
+            const expText = document.getElementById('explanation-text');
+            const expIcon = document.getElementById('explanation-icon');
+
+            expBox.classList.remove('hidden');
+
+            if (isCorrect) {
+                expBox.className = "mt-6 p-5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-200";
+                expTitle.innerText = "Correct Answer!";
+                expTitle.className = "font-bold text-base mb-1 text-emerald-400";
+                expIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+                expText.innerText = q.explanation.correct;
+            } else {
+                expBox.className = "mt-6 p-5 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-200";
+                expTitle.innerText = `Incorrect! (Correct answer: ${q.options[q.correct]})`;
+                expTitle.className = "font-bold text-base mb-1 text-rose-400";
+                expIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-400"></i>`;
+                expText.innerText = q.explanation.wrong;
+            }
+
+            // Enable Next Button
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = false;
+            nextBtn.className = "px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5";
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-card').classList.add('hidden');
+            document.getElementById('result-card').classList.remove('hidden');
+
+            const total = questions.length;
+            const percentage = Math.round((score / total) * 100);
+
+            document.getElementById('final-score').innerText = `${score}/${total}`;
+            document.getElementById('final-percentage').innerText = `${percentage}%`;
+
+            const badge = document.getElementById('result-badge');
+            const grade = document.getElementById('final-grade');
+
+            if (percentage >= 85) {
+                badge.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                badge.innerHTML = `<i class="fa-solid fa-award"></i>`;
+                grade.innerText = "Excellent!";
+                grade.className = "text-lg font-bold text-emerald-400";
+            } else if (percentage >= 65) {
+                badge.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-xl bg-brand-500/20 text-brand-400 border border-brand-500/30";
+                badge.innerHTML = `<i class="fa-solid fa-thumbs-up"></i>`;
+                grade.innerText = "Good Job!";
+                grade.className = "text-lg font-bold text-brand-400";
+            } else {
+                badge.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-xl bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                badge.innerHTML = `<i class="fa-solid fa-book-open"></i>`;
+                grade.innerText = "Needs Review";
+                grade.className = "text-lg font-bold text-amber-400";
+            }
+        }
+
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedOption = null;
+            document.getElementById('result-card').classList.add('hidden');
+            document.getElementById('quiz-card').classList.add('hidden');
+            document.getElementById('welcome-card').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
